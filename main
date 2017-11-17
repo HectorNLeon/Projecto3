@@ -1,0 +1,85 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+#include <string>
+#include "Hora.h"
+#include "Contrato.h"
+#include "Servicio.h"
+#include "Empresarial.h"
+#include "Personal.h"
+
+void hacerContrato(Servicio *arrServ){
+    int id, z=0, hr, mn, drc, indice;
+    string cve;
+    char op;
+    cout<<"Teclea tu id de cliente"<<endl;
+    cin>>id;
+    while(z!=1){
+        cout<<"Teclea la clave de servicio"<<endl;
+        cin>>cve;
+        for(int x=0; x<10; x++){
+            if(cve == arrServ[x]->getCveServicio()){
+                z=1;
+                indice=x;
+            }
+        }
+        if(z!=1)
+            cout<<"No existe esa clave"<<endl;
+    }
+    cout<<"Teclea la hora de inicio (hh:mm)"<<endl;
+    cin>>hr>>mn;
+    Hora hn(hr, mn);
+    while(z==1){
+        cout<<"Teclea la duracion"<<endl;
+        cin>>drc;
+        if(drc < arrServ[indice]->getMax){
+            cout<<"La duracion que tecleo es menor a la duracion la cual el evento se puede contratar\nDesea reservar por mas tiempo?(y/n)"<<endl;
+            cin>>op;
+            if(op=='y')
+                z==1;
+            else if(op=='n')
+                z=2;
+        }
+        else
+            z=0;
+
+    }
+    if (z==0){
+        Contrato cn(cve, id, hn, drc);
+
+    }
+   cout<<"El costo por las horas solicitadas es"<<arrServ[indice]->calculaCosto(drc)<<endl;
+}
+
+int main()
+{
+    ifstream archServ, archContra;
+    archServ.open("Servicios.txt");
+    Servicio *arrServ[10];
+    string cveServicio, descripcion;
+    char tipo;
+    double costo;
+    int maximaCant;
+    int i=0;
+    while(!archServ.eof()){
+        archServ>>cveServicio>>tipo;
+        if(tipo == 'B' || tipo == 'Q' || tipo == 'P' ){
+            archServ>>costo>>descripcion;
+            new Personal(cveServicio, tipo, costo, descripcion);
+            arrServ[i]=
+        }
+        else{
+            archServ>>costo>>maximaCant>>descripcion;
+            arrServ[i]=new Empresarial(cveServicio, tipo, costo, maximaCant, descripcion);
+        }
+
+    i++;
+    }
+
+    for(int z=0; z<i; z++){
+        arrServ[i]->muestra();
+    }
+
+    return 0;
+
+}
