@@ -8,16 +8,19 @@ using namespace std;
 #include "Empresarial.h"
 #include "Personal.h"
 
-void hacerContrato(Servicio *arrServ){
+Servicio* arrServ[10];
+
+int hacerContrato(int i){
     int id, z=0, hr, mn, drc, indice;
     string cve;
     char op;
+    Empresarial em1;
     cout<<"Teclea tu id de cliente"<<endl;
     cin>>id;
     while(z!=1){
         cout<<"Teclea la clave de servicio"<<endl;
         cin>>cve;
-        for(int x=0; x<10; x++){
+        for(int x=0; x<i; x++){
             if(cve == arrServ[x]->getCveServicio()){
                 z=1;
                 indice=x;
@@ -32,52 +35,85 @@ void hacerContrato(Servicio *arrServ){
     while(z==1){
         cout<<"Teclea la duracion"<<endl;
         cin>>drc;
-        if(drc < arrServ[indice]->getMax){
+        /*
+        if(drc < 100){
             cout<<"La duracion que tecleo es menor a la duracion la cual el evento se puede contratar\nDesea reservar por mas tiempo?(y/n)"<<endl;
             cin>>op;
-            if(op=='y')
-                z==1;
-            else if(op=='n')
+            if(op=='n')
                 z=2;
         }
-        else
+        else*/
             z=0;
 
     }
     if (z==0){
         Contrato cn(cve, id, hn, drc);
-
+        cout<<"El costo por las horas solicitadas es"<<arrServ[indice]->calculaCosto(drc)<<endl;
     }
-   cout<<"El costo por las horas solicitadas es"<<arrServ[indice]->calculaCosto(drc)<<endl;
+
+
+}
+
+void menu(){
+
+    cout<<"1.Consultar lista de servicios\n2.Consultar lista de contratos\n3.Consultar los contratos de un servicio dado\n"
+    "4.Consulta los contratos de una hora especifica\n5.Hacer un contrato\n6.Terminar"<<endl;
+
+
+
 }
 
 int main()
 {
     ifstream archServ, archContra;
     archServ.open("Servicios.txt");
-    Servicio *arrServ[10];
+    Empresarial em2;
     string cveServicio, descripcion;
     char tipo;
     double costo;
-    int maximaCant;
+    int maximaCant, op;
     int i=0;
     while(!archServ.eof()){
         archServ>>cveServicio>>tipo;
         if(tipo == 'B' || tipo == 'Q' || tipo == 'P' ){
-            archServ>>costo>>descripcion;
-            new Personal(cveServicio, tipo, costo, descripcion);
-            arrServ[i]=
+            archServ>>costo;
+            getline(archServ, descripcion);
+            arrServ[i]=new Personal(cveServicio, tipo, costo, descripcion);
         }
         else{
-            archServ>>costo>>maximaCant>>descripcion;
+            archServ>>costo>>maximaCant;
+            getline(archServ, descripcion);
             arrServ[i]=new Empresarial(cveServicio, tipo, costo, maximaCant, descripcion);
         }
 
-    i++;
+        i++;
+    }
+    for(int z=0; z<i; z++){
+        arrServ[z]->muestra();
     }
 
-    for(int z=0; z<i; z++){
-        arrServ[i]->muestra();
+
+    menu();
+    cin>>op;
+    while(op != 6){
+        switch(op){
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                hacerContrato(i);
+                break;
+            case 6:
+                break;
+
+        }
+        menu();
+        cin>>op;
     }
 
     return 0;
