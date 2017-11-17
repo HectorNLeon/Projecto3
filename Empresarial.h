@@ -15,7 +15,7 @@ class Empresarial:public Servicio{
         int getMaximaCantidad();
         string getDescripcion();
         void muestra();
-        double calcularCosto(duraHrs);
+        double calculaCosto(int duraHrs);
 };
 Empresarial::Empresarial():Servicio(){
     costoxDia=0;
@@ -45,10 +45,10 @@ int Empresarial::getMaximaCantidad(){
 string Empresarial::getDescripcion(){
     return descripcion;
 }
-void Empresarial::vmuestra(){
+void Empresarial::muestra(){
     cout<<"Clave "<<cveServicio<<"\nTipo "<<tipo<<"\nCosto por dia "<<costoxDia<<"\nMaxima cantidad "<<maximaCantidad<<"\nDescripcion "<<descripcion<<endl;
 }
-double Empresarial::calcularCosto(duraHrs){
+double Empresarial::calculaCosto(int duraHrs){
     return costoxDia*duraHrs/8;
 
 }
