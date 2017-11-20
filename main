@@ -8,9 +8,50 @@ using namespace std;
 #include "Empresarial.h"
 #include "Personal.h"
 
-Servicio* arrServ[10];
+void consultaContrato(Contrato arrContrato[], Servicio *arrServ[], int cCont, int cServ){
+    for(int z=0; z<cCont; z++){
+        for(int i=0; i<cServ; i++){
+            if(arrContrato[z].getCveServicio()==arrServ[i]->getCveServicio())
+                arrServ[i]->muestra();
+        }
 
-int hacerContrato(int i){
+        cout<<"Id del cliente: "<<arrContrato[z].getIDCliente()<<endl;
+        cout<<"Hora de inicio: "<<arrContrato[z].getHoraInicio()<<endl;
+        cout<<"Duración: "<<arrContrato[z].getDuraHrs()<<" horas"<<endl;
+        //if(arrServ[z]->getTipo()=='B' || arrServ[z]->getTipo() == 'Q' || arrServ[z]->getTipo() == 'P')
+        cout<<"Costo para el cliente : $"<<arrServ[z]->calculaCosto(arrContrato[z].getDuraHrs())<<endl;
+        cout<<"-------------------------------------"<<endl;
+    }
+}
+void consultaHora(Contrato arrContrato[], Servicio *arrServ[], int cCont, int cServ){
+    Hora horaConsultada;
+    int verificador=0;
+    cout<<"Ingrese la hora que quiere a consultar."<<endl;
+    cin>>horaConsultada;
+    cout<<endl;
+    for(int z=0; z<cCont; z++){
+        if(arrContrato[z].getHoraInicio().getHora()==horaConsultada.getHora() && arrContrato[z].getHoraInicio().getMinuto()==horaConsultada.getMinuto() ){
+            for(int i=0; i<cServ; i++){
+                if(arrContrato[z].getCveServicio()==arrServ[i]->getCveServicio()){
+                    arrServ[i]->muestra();
+                    cout<<"------------------------------"<<endl;
+                }
+                verificador=1;
+            }
+        }
+    }
+    if(verificador==0)
+        cout<<"No hay contratos con esa hora"<<endl;
+}
+
+/*
+	Función: hacerContrato: Crear un nuevo contrato
+	Parámetros:
+		*arrServ[]	- Arreglo de apuntadores a objetos
+		i	        - Cantidad de servicios agregados
+	Valor de retorno: Contrato nuevo cn
+*/
+Contrato hacerContrato(Servicio *arrServ[],int i){
     int id, z=0, hr, mn, drc, indice;
     string cve;
     char op;
@@ -29,8 +70,12 @@ int hacerContrato(int i){
         if(z!=1)
             cout<<"No existe esa clave"<<endl;
     }
-    cout<<"Teclea la hora de inicio (hh:mm)"<<endl;
-    cin>>hr>>mn;
+    while(hr>23 || mn>59){
+        cout<<"Teclea la hora de inicio (hh:mm)"<<endl;
+        cin>>hr>>mn;
+        if(hr> 23 || mn>59)
+            cout<<"Hora incorrecta"<<endl;
+    }
     Hora hn(hr, mn);
     while(z==1){
         cout<<"Teclea la duracion"<<endl;
@@ -42,18 +87,25 @@ int hacerContrato(int i){
             if(op=='n')
                 z=2;
         }
-        else*/
+        else
+        */
             z=0;
 
     }
     if (z==0){
+        cout<<"El costo por las horas solicitadas es "<<arrServ[indice]->calculaCosto(drc)<<endl;
         Contrato cn(cve, id, hn, drc);
-        cout<<"El costo por las horas solicitadas es"<<arrServ[indice]->calculaCosto(drc)<<endl;
+        return cn;
     }
 
 
 }
 
+/*
+	Función: menu: Desplegar el menu de opcion
+	Parámetros: -----
+	Valor de retorno: -----
+*/
 void menu(){
 
     cout<<"1.Consultar lista de servicios\n2.Consultar lista de contratos\n3.Consultar los contratos de un servicio dado\n"
@@ -66,33 +118,45 @@ void menu(){
 int main()
 {
     ifstream archServ, archContra;
+    ofstream archContrato;
     archServ.open("Servicios.txt");
-    Empresarial em2;
+    archContra.open("Contratos.txt");
+    Contrato arrContrato[20];
+    Servicio* arrServ[10];
     string cveServicio, descripcion;
     char tipo;
     double costo;
-    int maximaCant, op;
-    int i=0;
+    int iServ=0, iCont=0;
+    int maximaCant, op, idCliente, duraHrs, cantidad=0;
+    Hora horaInicio;
+
+    while(!archContra.eof()){
+        archContra>>cveServicio>>idCliente>>horaInicio>>duraHrs;
+        arrContrato[iCont]=Contrato(cveServicio, idCliente, horaInicio, duraHrs);
+        iCont++;
+    }
+    archContra.close();
     while(!archServ.eof()){
         archServ>>cveServicio>>tipo;
         if(tipo == 'B' || tipo == 'Q' || tipo == 'P' ){
             archServ>>costo;
             getline(archServ, descripcion);
-            arrServ[i]=new Personal(cveServicio, tipo, costo, descripcion);
+            arrServ[iServ]=new Personal(cveServicio, tipo, costo, descripcion);
         }
         else{
             archServ>>costo>>maximaCant;
             getline(archServ, descripcion);
-            arrServ[i]=new Empresarial(cveServicio, tipo, costo, maximaCant, descripcion);
+            arrServ[iServ]=new Empresarial(cveServicio, tipo, costo, maximaCant, descripcion);
         }
 
-        i++;
+        iServ++;
     }
-    for(int z=0; z<i; z++){
+    for(int z=0; z<iServ; z++){
         arrServ[z]->muestra();
     }
 
-
+    cantidad=iCont;
+    archContrato.open("Contratos.txt");
     menu();
     cin>>op;
     while(op != 6){
@@ -100,13 +164,16 @@ int main()
             case 1:
                 break;
             case 2:
+                consultaContrato(arrContrato, arrServ, iCont, iServ);
                 break;
             case 3:
                 break;
             case 4:
+                consultaHora(arrContrato, arrServ, iCont, iServ);
                 break;
             case 5:
-                hacerContrato(i);
+                arrContrato[cantidad]=hacerContrato(arrServ,iServ);
+                cantidad+=1;
                 break;
             case 6:
                 break;
@@ -115,6 +182,10 @@ int main()
         menu();
         cin>>op;
     }
+    for(int x=0; x<cantidad; x++){
+        archContrato<<arrContrato[x].getCveServicio()<<" "<<arrContrato[x].getIDCliente()<<" "<<arrContrato[x].getHoraInicio()<<" "<<arrContrato[x].getDuraHrs()<<endl;
+    }
+
 
     return 0;
 
